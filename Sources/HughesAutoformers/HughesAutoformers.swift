@@ -27,7 +27,7 @@ extension HughesAutoformersAccessory: Identifiable {
     public var id: String {
         switch self {
         case .powerWatchdog(let powerWatchdog):
-            return "APMS" + powerWatchdog.id.description
+            return powerWatchdog.id.description
         }
     }
 }

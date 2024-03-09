@@ -99,7 +99,7 @@ extension PowerWatchdog.ID: ExpressibleByIntegerLiteral {
 extension PowerWatchdog.ID: CustomStringConvertible {
     
     public var description: String {
-        String(rawValue, radix: 16).uppercased()
+        "APMS" + String(rawValue, radix: 16).uppercased()
     }
 }
 

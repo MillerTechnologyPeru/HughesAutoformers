@@ -78,8 +78,8 @@ final class HughesAutoformersTests: XCTestCase {
         }
         
         XCTAssertEqual(accessory.id, 0x025E62E208)
+        XCTAssertEqual(accessory.id.description, "APMS25E62E208")
         XCTAssertEqual(accessory.hardwareRevision, 0x609866F25E62)
-        XCTAssertEqual(HughesAutoformersAccessory.powerWatchdog(accessory).id, "APMS25E62E208")
     }
     #endif
 }
