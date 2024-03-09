@@ -88,27 +88,33 @@ final class HughesAutoformersTests: XCTestCase {
         do {
             let data = Data([0x01, 0x03, 0x20, 0x00, 0x12, 0x5b, 0xa4, 0x00, 0x01, 0x43, 0x07, 0x00, 0x93, 0xc8, 0x08, 0x00, 0x6a, 0xcd, 0x68, 0x00])
             
-            guard let notification = PowerWatchdogNotificationCharacteristic(data: data),
+            guard let notification = PowerWatchdog.NotificationCharacteristic(data: data),
                   case let .energy(energy) = notification else {
                 XCTFail()
                 return
             }
             
-            XCTAssertEqual(energy.rawVoltage, 0x00125ba4)
-            XCTAssertEqual(energy.voltage, 120.3108)
+            XCTAssertEqual(energy.voltage, 0x00125ba4)
+            XCTAssertEqual(Float(energy.voltage) / 10_000, 120.3108)
+            XCTAssertEqual(Float(energy.amperage) / 10_000, 8.2695)
+            XCTAssertEqual(Float(energy.watts) / 10_000, 968.5)
+            XCTAssertEqual(Float(energy.totalWatts) / 10_000, 699.94)
         }
         
         do {
             let data = Data([0x01, 0x03, 0x20, 0x00, 0x12, 0x94, 0xFB, 0x00, 0x01, 0x55, 0xD2, 0x00, 0x9E, 0x8A, 0x99, 0x00, 0x00, 0x24, 0xB8, 0x00])
             
-            guard let notification = PowerWatchdogNotificationCharacteristic(data: data),
+            guard let notification = PowerWatchdog.NotificationCharacteristic(data: data),
                   case let .energy(energy) = notification else {
                 XCTFail()
                 return
             }
             
-            XCTAssertEqual(energy.rawVoltage, 1217787)
-            XCTAssertEqual(energy.voltage, 121.7787)
+            XCTAssertEqual(energy.voltage, 1217787)
+            XCTAssertEqual(Float(energy.voltage) / 10_000, 121.7787)
+            XCTAssertEqual(Float(energy.amperage) / 10_000, 8.7506)
+            XCTAssertEqual(Float(energy.watts) / 10_000, 1039.0168)
+            XCTAssertEqual(Float(energy.totalWatts) / 10_000, 0.94)
         }
     }
 }
