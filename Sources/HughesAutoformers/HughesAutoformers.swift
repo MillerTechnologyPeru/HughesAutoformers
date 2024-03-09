@@ -7,7 +7,7 @@ public enum HughesAutoformersAccessory: Equatable, Hashable, Codable, Sendable {
     case powerWatchdog(PowerWatchdog)
 }
 
-public enum HughesAutoformersAccessoryType: String, Codable, CaseIterable {
+public enum HughesAutoformersAccessoryType: String, Codable, CaseIterable, Sendable {
     
     case powerWatchdog = "PowerWatchdog"
 }
