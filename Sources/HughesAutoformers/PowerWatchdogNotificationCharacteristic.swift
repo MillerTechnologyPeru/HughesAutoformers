@@ -9,23 +9,28 @@ import Foundation
 import Bluetooth
 import GATT
 
-public enum PowerWatchdogNotificationCharacteristic: Equatable, Hashable, Sendable {
+public extension PowerWatchdog {
     
-    case line(Line)
-    case energy(Energy)
+    enum NotificationCharacteristic: Equatable, Hashable, Sendable {
+        
+        case energy(Energy)
+        case line(LineValues)
+    }
 }
 
-public extension PowerWatchdogNotificationCharacteristic {
+public extension PowerWatchdog.NotificationCharacteristic {
     
-    var uuid: BluetoothUUID { .powerWatchdogRXCharacteristic }
+    static var uuid: BluetoothUUID { .powerWatchdogRXCharacteristic }
+    
+    internal static var length: Int { 20 }
     
     init?(data: Data) {
-        guard data.count == 20 else {
+        guard data.count == Self.length else {
             return nil
         }
         switch data[0] {
-        case Line.opcode:
-            guard let value = Line(data: data) else {
+        case LineValues.opcode:
+            guard let value = LineValues(data: data) else {
                 return nil
             }
             self = .line(value)
@@ -40,39 +45,118 @@ public extension PowerWatchdogNotificationCharacteristic {
     }
 }
 
-public extension PowerWatchdogNotificationCharacteristic {
+public extension PowerWatchdog.NotificationCharacteristic {
     
-    struct Line: Equatable, Hashable, Sendable {
+    struct Energy: Equatable, Hashable, Sendable {
         
-        static var opcode: UInt8 { 0x00 }
+        public static var opcode: UInt8 { 0x01 }
+        
+        public let voltage: Int32
+        
+        public let amperage: Int32
+        
+        public let watts: Int32
+        
+        public let totalWatts: Int32
         
         public init?(data: Data) {
             guard data.first == Self.opcode,
-                  data.count == 20 else {
+                  data.count == PowerWatchdog.NotificationCharacteristic.length else {
                 return nil
             }
+            self.voltage = Int32(bigEndian: Int32(bytes: (data[3], data[4], data[5], data[6])))
+            self.amperage = Int32(bigEndian: Int32(bytes: (data[7], data[8], data[9], data[10])))
+            self.watts = Int32(bigEndian: Int32(bytes: (data[11], data[12], data[13], data[14])))
+            self.totalWatts = Int32(bigEndian: Int32(bytes: (data[15], data[16], data[17], data[18])))
         }
     }
 }
 
-public extension PowerWatchdogNotificationCharacteristic {
+public extension PowerWatchdog.NotificationCharacteristic {
     
-    struct Energy: Equatable, Hashable, Sendable {
+    struct LineValues: Equatable, Hashable, Sendable {
         
-        static var opcode: UInt8 { 0x01 }
+        public static var opcode: UInt8 { 0x00 }
         
-        internal let rawVoltage: Int32
-        
-        public var voltage: Float {
-            Float(rawVoltage) / 10_000
-        }
+        public let line: PowerWatchdog.Line
         
         public init?(data: Data) {
             guard data.first == Self.opcode,
-                  data.count == 20 else {
+                  data.count == PowerWatchdog.NotificationCharacteristic.length else {
                 return nil
             }
-            self.rawVoltage = Int32(bigEndian: Int32(bytes: (data[3], data[4], data[5], data[6])))
+            let lineBytes = (data[17], data[18], data[19])
+            switch lineBytes {
+                case (0, 0, 0):
+                    self.line = 0
+                case (1, 1, 1):
+                    self.line = 1
+                default:
+                    return nil
+            }
+            
+        }
+    }
+}
+
+public extension PowerWatchdog {
+    
+    struct Status: Equatable, Hashable, Codable, Sendable {
+        
+        public let line: Line
+        
+        public let voltage: Float
+        
+        public let amperage: Float
+        
+        public let watts: Float
+        
+        public let totalWatts: Float
+        
+        public init(
+            energy: PowerWatchdog.NotificationCharacteristic.Energy,
+            line lineValues: PowerWatchdog.NotificationCharacteristic.LineValues
+        ) {
+            self.line = lineValues.line
+            self.voltage = Float(energy.voltage) / 10_000
+            self.amperage = Float(energy.amperage) / 10_000
+            self.watts = Float(energy.watts) / 10_000
+            self.totalWatts = Float(energy.totalWatts) / 10_000
+        }
+    }
+}
+
+// MARK: - Central
+
+public extension CentralManager {
+    
+    /// Recieve stream of power measurements.
+    func powerWatchdogStatus(
+        characteristic: Characteristic<Peripheral, AttributeID>
+    ) async throws -> AsyncIndefiniteStream<PowerWatchdog.Status> {
+        typealias Notification = PowerWatchdog.NotificationCharacteristic
+        assert(characteristic.uuid == .powerWatchdogRXCharacteristic)
+        let notifications = try await self.notify(for: characteristic)
+        return AsyncIndefiniteStream<PowerWatchdog.Status> { build in
+            var lastPacket: PowerWatchdog.NotificationCharacteristic?
+            for try await data in notifications {
+                guard let notification = Notification(data: data) else {
+                    throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid data."))
+                }
+                switch (lastPacket, notification) {
+                case let (nil, .energy(energy)):
+                    lastPacket = .energy(energy)
+                case let (.energy(energy), .line(line)):
+                    let status = PowerWatchdog.Status(
+                        energy: energy,
+                        line: line
+                    )
+                    lastPacket = nil
+                    build(status)
+                default:
+                    throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Inexpected value \(notification)"))
+                }
+            }
         }
     }
 }
