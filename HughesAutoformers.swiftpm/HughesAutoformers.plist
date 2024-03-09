@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PowerWatchdog</key>
+	<dict>
+		<key>symbol</key>
+		<string>poweroutlet.type.i.square</string>
+		<key>image</key>
+		<string>https://hughes.b-cdn.net/wp-content/uploads/2018/01/PWD-30-FNT-SMLL-1-1.png</string>
+		<key>manual</key>
+		<string>https://hughes.b-cdn.net/wp-content/uploads/2018/01/PWD-Surge-Guide.pdf</string>
+		<key>website</key>
+		<string>https://hughesautoformers.com/product/pwd30/</string>
+	</dict>
+</dict>
+</plist>
