@@ -111,7 +111,7 @@ public extension AccessoryManager {
 internal extension GATTConnection {
     
     func powerWatchdogStatus() async throws -> AsyncIndefiniteStream<PowerWatchdog.Status> {
-        guard let characteristic = cache.characteristic(.powerWatchdogRXCharacteristic, service: .powerWatchdogService) else {
+        guard let characteristic = cache.characteristic(.powerWatchdogTXCharacteristic, service: .powerWatchdogService) else {
             throw HughesAutoformersAppError.characteristicNotFound(.powerWatchdogRXCharacteristic)
         }
         return try await central.powerWatchdogStatus(characteristic: characteristic)

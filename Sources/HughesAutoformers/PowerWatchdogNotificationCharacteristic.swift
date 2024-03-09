@@ -135,7 +135,7 @@ public extension CentralManager {
         characteristic: Characteristic<Peripheral, AttributeID>
     ) async throws -> AsyncIndefiniteStream<PowerWatchdog.Status> {
         typealias Notification = PowerWatchdog.NotificationCharacteristic
-        assert(characteristic.uuid == .powerWatchdogRXCharacteristic)
+        assert(characteristic.uuid == .powerWatchdogTXCharacteristic)
         let notifications = try await self.notify(for: characteristic)
         return AsyncIndefiniteStream<PowerWatchdog.Status> { build in
             var lastPacket: PowerWatchdog.NotificationCharacteristic?
