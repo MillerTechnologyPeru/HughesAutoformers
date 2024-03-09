@@ -82,4 +82,33 @@ final class HughesAutoformersTests: XCTestCase {
         XCTAssertEqual(accessory.hardwareRevision, 0x609866F25E62)
     }
     #endif
+    
+    func testPowerWatchdogEnergyNotification() {
+        
+        do {
+            let data = Data([0x01, 0x03, 0x20, 0x00, 0x12, 0x5b, 0xa4, 0x00, 0x01, 0x43, 0x07, 0x00, 0x93, 0xc8, 0x08, 0x00, 0x6a, 0xcd, 0x68, 0x00])
+            
+            guard let notification = PowerWatchdogNotificationCharacteristic(data: data),
+                  case let .energy(energy) = notification else {
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(energy.rawVoltage, 0x00125ba4)
+            XCTAssertEqual(energy.voltage, 120.3108)
+        }
+        
+        do {
+            let data = Data([0x01, 0x03, 0x20, 0x00, 0x12, 0x94, 0xFB, 0x00, 0x01, 0x55, 0xD2, 0x00, 0x9E, 0x8A, 0x99, 0x00, 0x00, 0x24, 0xB8, 0x00])
+            
+            guard let notification = PowerWatchdogNotificationCharacteristic(data: data),
+                  case let .energy(energy) = notification else {
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(energy.rawVoltage, 1217787)
+            XCTAssertEqual(energy.voltage, 121.7787)
+        }
+    }
 }
