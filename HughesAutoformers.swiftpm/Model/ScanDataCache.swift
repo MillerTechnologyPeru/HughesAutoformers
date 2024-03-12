@@ -1,6 +1,6 @@
 //
 //  ScanDataCache.swift
-//  BluetoothAccessoryKit
+//  
 //
 //  Created by Alsey Coleman Miller on 3/9/24.
 //

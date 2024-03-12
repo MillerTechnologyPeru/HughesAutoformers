@@ -112,7 +112,7 @@ internal extension GATTConnection {
     
     func powerWatchdogStatus() async throws -> AsyncIndefiniteStream<PowerWatchdog.Status> {
         guard let characteristic = cache.characteristic(.powerWatchdogTXCharacteristic, service: .powerWatchdogService) else {
-            throw HughesAutoformersAppError.characteristicNotFound(.powerWatchdogRXCharacteristic)
+            throw HughesAutoformersAppError.characteristicNotFound(.powerWatchdogTXCharacteristic)
         }
         return try await central.powerWatchdogStatus(characteristic: characteristic)
     }
