@@ -35,15 +35,15 @@ extension AsyncParsableCommand {
     func loadBluetooth(_ index: UInt = 0) async throws -> NativeCentral {
         
         #if os(Linux)
-        var controllers = await HostController.controllers
+        let controllers = await HostController.controllers
         // keep trying to load Bluetooth device
         if controllers.isEmpty || controllers.count < index {
-            log?("No Bluetooth adapters found")
+            print("No Bluetooth adapters found")
             throw HughesAutoformersToolError.bluetoothUnavailable
         }
-        var hostController: HostController = controllers[Int(index)]
+        let hostController: HostController = controllers[Int(index)]
         let address = try await hostController.readDeviceAddress()
-        log?("Bluetooth Address: \(address)")
+        print("Bluetooth Address: \(address)")
         let clientOptions = GATTCentralOptions(
             maximumTransmissionUnit: .max
         )
