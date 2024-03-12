@@ -19,7 +19,8 @@ struct HughesAutoformersTool: AsyncParsableCommand {
         abstract: "A command line tool for interacting with Hughes Autoformers Bluetooth devices.",
         version: "1.0.0",
         subcommands: [
-            ScanCommand.self
+            ScanCommand.self,
+            PowerWatchDogCommand.self
         ],
         defaultSubcommand: ScanCommand.self
     )

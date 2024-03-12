@@ -13,7 +13,10 @@ import HughesAutoformers
 
 struct ScanCommand: AsyncParsableCommand {
     
-    static let configuration = CommandConfiguration(abstract: "Scan for nearby devices.")
+    static let configuration = CommandConfiguration(
+        commandName: "scan",
+        abstract: "Scan for nearby devices."
+    )
     
     @Option(help: "The scan duration.")
     var scanDuration: UInt = 5
