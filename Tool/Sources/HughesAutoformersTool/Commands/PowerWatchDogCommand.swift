@@ -32,7 +32,7 @@ struct PowerWatchDogCommand: AsyncParsableCommand {
         )
         let stream = try await connection.powerWatchdogStatus()
         for try await notification in stream {
-            print("[\(connection.peripheral)] \(notification.voltage) \(notification.amperage) \(notification.watts) \(notification.totalWatts)")
+            print("[\(connection.peripheral)] \(notification.voltage)V \(notification.amperage)A \(notification.watts)W \(notification.totalWatts)kWh")
         }
     }
 }
