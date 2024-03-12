@@ -7,6 +7,7 @@
 
 import Foundation
 import Bluetooth
+import HughesAutoformers
 
 public enum HughesAutoformersToolError: Error {
     
@@ -24,4 +25,7 @@ public enum HughesAutoformersToolError: Error {
     
     /// Not a compatible peripheral
     case incompatiblePeripheral
+    
+    /// Could not scan for device.
+    case deviceNotInRange(HughesAutoformersAccessory.ID)
 }
