@@ -95,6 +95,7 @@ final class HughesAutoformersTests: XCTestCase {
             }
             
             XCTAssertEqual(energy.voltage, 0x00125ba4)
+            XCTAssertEqual(energy.reservedValue0, 800)
             XCTAssertEqual(Float(energy.voltage) / 10_000, 120.3108)
             XCTAssertEqual(Float(energy.amperage) / 10_000, 8.2695)
             XCTAssertEqual(Float(energy.watts) / 10_000, 968.5)
@@ -110,11 +111,43 @@ final class HughesAutoformersTests: XCTestCase {
                 return
             }
             
+            XCTAssertEqual(energy.reservedValue0, 800)
             XCTAssertEqual(energy.voltage, 1217787)
             XCTAssertEqual(Float(energy.voltage) / 10_000, 121.7787)
             XCTAssertEqual(Float(energy.amperage) / 10_000, 8.7506)
             XCTAssertEqual(Float(energy.watts) / 10_000, 1039.0168)
             XCTAssertEqual(Float(energy.totalWatts) / 10_000, 0.94)
         }
+        
+        do {
+            let data = Data([0x01, 0x03, 0x20, 0x00, 0x12, 0xA3, 0x95, 0x00, 0x01, 0x58, 0x3E, 0x00, 0x90, 0x9C, 0x9B, 0x00, 0x16, 0x81, 0xB8, 0x00])
+            
+            guard let notification = PowerWatchdog.NotificationCharacteristic(data: data),
+                  case let .energy(energy) = notification else {
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(energy.reservedValue0, 800)
+            XCTAssertEqual(energy.voltage, 1221525)
+            XCTAssertEqual(Float(energy.voltage) / 10_000, 122.1525)
+            XCTAssertEqual(Float(energy.amperage) / 10_000, 8.8126)
+            XCTAssertEqual(Float(energy.watts) / 10_000, 947.7275)
+            XCTAssertEqual(Float(energy.totalWatts) / 10_000, 147.5)
+        }
+    }
+    
+    func testPowerWatchdogLineNotification() {
+        
+        let data = Data([0x00, 0x03, 0x70, 0x00, 0x11, 0xAA, 0xF3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x17, 0x75, 0xE2, 0x2A, 0x00, 0x00, 0x00])
+        
+        guard let notification = PowerWatchdog.NotificationCharacteristic(data: data),
+              case let .line(value) = notification else {
+            XCTFail()
+            return
+        }
+        
+        XCTAssertEqual(value.line, 0)
+        XCTAssertEqual(Float(value.frequency) / 100, 60.05)
     }
 }
