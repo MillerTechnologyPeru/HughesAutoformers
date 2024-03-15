@@ -51,6 +51,8 @@ public extension PowerWatchdog.NotificationCharacteristic {
         
         public static var opcode: UInt8 { 0x01 }
         
+        internal let reservedValue0: Int16
+        
         public let voltage: Int32
         
         public let amperage: Int32
@@ -59,15 +61,19 @@ public extension PowerWatchdog.NotificationCharacteristic {
         
         public let totalWatts: Int32
         
+        internal let reservedValue1: UInt8
+        
         public init?(data: Data) {
             guard data.first == Self.opcode,
                   data.count == PowerWatchdog.NotificationCharacteristic.length else {
                 return nil
             }
+            self.reservedValue0 = Int16(bigEndian: Int16(bytes: (data[1], data[2])))
             self.voltage = Int32(bigEndian: Int32(bytes: (data[3], data[4], data[5], data[6])))
             self.amperage = Int32(bigEndian: Int32(bytes: (data[7], data[8], data[9], data[10])))
             self.watts = Int32(bigEndian: Int32(bytes: (data[11], data[12], data[13], data[14])))
             self.totalWatts = Int32(bigEndian: Int32(bytes: (data[15], data[16], data[17], data[18])))
+            self.reservedValue1 = data[19]
         }
     }
 }
@@ -79,6 +85,8 @@ public extension PowerWatchdog.NotificationCharacteristic {
         public static var opcode: UInt8 { 0x00 }
         
         public let line: PowerWatchdog.Line
+        
+        public let frequency: Int32
         
         public init?(data: Data) {
             guard data.first == Self.opcode,
@@ -94,7 +102,7 @@ public extension PowerWatchdog.NotificationCharacteristic {
                 default:
                     return nil
             }
-            
+            self.frequency = Int32(bigEndian: Int32(bytes: (data[11], data[12], data[13], data[14])))
         }
     }
 }
@@ -104,6 +112,8 @@ public extension PowerWatchdog {
     struct Status: Equatable, Hashable, Codable, Sendable {
         
         public let line: Line
+        
+        public let frequency: Float
         
         public let voltage: Float
         
@@ -122,6 +132,7 @@ public extension PowerWatchdog {
             self.amperage = Float(energy.amperage) / 10_000
             self.watts = Float(energy.watts) / 10_000
             self.totalWatts = Float(energy.totalWatts) / 10_000
+            self.frequency = Float(lineValues.frequency) / 100
         }
     }
 }
